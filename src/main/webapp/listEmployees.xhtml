@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:o="http://omnifaces.org/ui">
+  <h:head>
+  		
+        <title>Listado de Empleados</title>
+</h:head>
+
+    <h:body>
+        <p:ajaxStatus style="width: 16px;height: 16px;" id="ajaxStatusPanel">
+            <f:facet name="start">
+                <h:graphicImage library="images" name="ajaxloading.gif" />
+            </f:facet>
+
+            <f:facet name="complete">
+                <h:outputText value="" />
+            </f:facet>
+
+        </p:ajaxStatus>
+
+        <h:form id="employeesListForm">
+            <p:messages id="dataTableMessages" showDetail="true" sticky="true" />
+
+              <p:dataTable id="employeesDataTable" value="#{employeeBean.employees}" var="employee" editable="true" rowKey="#{employee.idEmployee}" 
+                         selection="#{employeeBean.employeeSelected}" selectionMode="single" >
+
+                <f:facet name="header">
+                    Listado de Empleados
+                </f:facet>
+                
+                <p:column headerText="Id de Empleado">
+                    <h:outputText value="#{employee.idEmployee}" />
+                </p:column>
+
+                <p:column headerText="Nombre">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{employee.name}" />
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputText value="#{employee.name}" />
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <p:column headerText="Apellido">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{employee.lastname}" />
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputText value="#{employee.lastname}" />
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+                <p:column headerText="Fecha de Nacimiento">
+				<p:cellEditor>
+					<f:facet name="output">
+						<h:outputText value="#{employee.birthdate}">
+							<f:convertDateTime pattern="dd/MM/yyyy" />
+						</h:outputText>
+					</f:facet>
+					<f:facet name="input">
+						<p:calendar value="#{employee.birthdate}" pattern="dd/MM/yyyy" />
+					</f:facet>
+				</p:cellEditor>
+			</p:column>
+
+			<p:column headerText="Genero">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{employee.gender}" />
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputText value="#{employee.gender}" />
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+                
+              <p:column headerText="Estado">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{employee.active ? 'Activo' : 'Inactivo'}"/> 
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:selectBooleanCheckbox id="active" value="#{employee.active}" />
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+                
+    
+             
+			     <p:column headerText="Sucursal">
+			    <p:cellEditor>
+			        <f:facet name="output">
+			            <h:outputText value="#{employee.store.name}" />
+			        </f:facet>
+			        <f:facet name="input">
+			            <p:selectOneMenu value="#{employee.store}" converter="omnifaces.SelectItemsConverter">
+			                <f:selectItems value="#{employeeBean.stores}" var="store" itemLabel="#{store.name}" itemValue="#{store}" />
+			            </p:selectOneMenu>
+			        </f:facet>
+			    </p:cellEditor>
+			</p:column>
+
+                
+             
+		
+			
+
+
+                <f:facet name="footer">
+                    <p:commandButton value="Regresar" action="index" />
+                    <p:spacer height="5px"/>
+                    <p:commandButton value="Agregar" actionListener="#{employeeBean.restartEmployeeSelected}"
+                                     update=":dialogForm" oncomplete="PF('employeeDialog').show();" />
+                </f:facet>
+
+                <p:column headerText="Opciones" style="width: 80px">
+                    <p:rowEditor/>
+                </p:column>
+
+                <p:ajax event="rowEdit" listener="#{employeeBean.editListener}"/>
+
+            </p:dataTable>
+            <!-- Mostrar mensajes para las diferentes acciones del CRUD -->
+            <p:dialog header="Éxito - Guardar" widgetVar="successSaveDialog"
+			resizable="false" draggable="false" closable="true" modal="true">
+			<p:outputPanel>
+				<h:outputText value="Empleado registrado correctamente." />
+				<p:commandButton value="Aceptar"
+					onclick="PF('successSaveDialog').hide();" />
+			</p:outputPanel>
+		</p:dialog>
+
+		<p:dialog header="Éxito - Modificar" widgetVar="successUpdateDialog"
+			resizable="false" draggable="false" closable="true" modal="true">
+			<p:outputPanel>
+				<h:outputText value="Empleado modificado correctamente." />
+				<p:commandButton value="Aceptar"
+					onclick="PF('successUpdateDialog').hide();" />
+			</p:outputPanel>
+		</p:dialog>
+		
+		<p:dialog header="Éxito - Eliminar" widgetVar="successDeleteDialog" resizable="false"
+			draggable="false" closable="true" modal="true">
+			<p:outputPanel>
+				<h:outputText value="Empleado eliminado correctamente." />
+				<p:commandButton value="Aceptar" onclick="PF('successDeleteDialog').hide();" />
+			</p:outputPanel>
+		</p:dialog>
+		
+
+			<p:contextMenu for="employeesDataTable">
+                <p:menuitem value="Eliminar" update="employeesListForm:employeesDataTable" icon="ui-icon-close" 
+                            actionListener="#{employeeBean.deleteEmployee}" />
+            </p:contextMenu>
+
+        </h:form>
+
+        <p:dialog id="employeeDlg" widgetVar="employeeDialog" header="Agregar Empleado" modal="true" showEffect="fade" hideEffect="fade" 
+            resizable="false">
+            <h:form id="dialogForm" >
+                <p:outputPanel id="employeeDetail" style="text-align: center">
+                    <p:panelGrid id="display" columns="2"  columnClasses="label, value" >
+                    
+						<h:outputText for="name" value="Nombre:" />
+						<p:inputText id="name"
+						value="#{employeeBean.employeeSelected.name}" required="true" />
+						
+
+
+						<h:outputText for="lastname" value="Apellido:" />
+						<p:inputText id="lastname"
+						value="#{employeeBean.employeeSelected.lastname}" required="true"/>
+
+						<h:outputLabel for="birthdate" value="Fecha de Nacimiento:" />
+						<p:calendar id="birthdate"
+						value="#{employeeBean.employeeSelected.birthdate}"
+						pattern="dd/MM/yyyy" required="true"/>
+
+						<h:outputLabel for="gender" value="Género:" />
+						<p:selectOneMenu id="gender" value="#{employeeBean.employeeSelected.gender}" required="true">
+							<f:selectItem itemLabel="Seleccione" itemValue="" noSelectionOption="true"/>
+							<f:selectItem itemLabel="Masculino" itemValue="M" />
+							<f:selectItem itemLabel="Femenino" itemValue="F" />
+						</p:selectOneMenu>
+
+
+						<h:outputText for="store" value="Sucursal:" />
+						<p:selectOneMenu id="store"
+                     	value="#{employeeBean.employeeSelected.store}"
+                     	label="Sucursal" required="true">
+							<f:selectItem itemLabel="Seleccionar Sucursal" itemValue="#{null}" noSelectionOption="true"/>
+							<f:selectItems value="#{employeeBean.stores}" var="store" itemLabel="#{store.name}" itemValue="#{store}"/>
+							 <o:converter converterId="omnifaces.SelectItemsConverter" />
+						</p:selectOneMenu>  
+						 
+						<h:outputLabel for="active" value="Activo:" />
+						<p:selectBooleanCheckbox id="active" value="#{employeeBean.employeeSelected.active}" required="true"/>      
+
+					<f:facet name="footer" >
+                            <p:commandButton value="Guardar"
+                     actionListener="#{employeeBean.insertEmployee}"
+                     update="display,:employeesListForm:employeesDataTable"
+                     oncomplete="PF('employeeDialog').hide();" /> 
+                    </f:facet>
+                    
+					
+					</p:panelGrid>
+                </p:outputPanel>
+            </h:form>
+        </p:dialog>
+        <script type="text/javascript">
+				    function validarCampos() {
+				        // Verificar si los campos requeridos están llenos
+				        if (!PF('employeeDialog').jq.find('[required="true"]').filter(function() { return $(this).val().trim() === ''; }).length) {
+				            // Todos los campos requeridos están llenos, permite que el modal se cierre
+				            return true;
+				        } else {
+				            // Algunos campos requeridos están vacíos, evita que el modal se cierre
+				            alert('Por favor, complete todos los campos requeridos.');
+				            return false;
+				        }
+				    }
+				</script>
+	</h:body>
+</html>

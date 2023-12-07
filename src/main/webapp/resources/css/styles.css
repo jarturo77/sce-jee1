@@ -1,0 +1,11 @@
+.buttonWithSpace {
+    margin-right: 10px;
+}
+
+.activo {
+    color: green;
+}
+
+.inactivo {
+    color: red;
+}

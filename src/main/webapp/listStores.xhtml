@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Listado de Sucursales</title>
+    </h:head>
+    <h:body>
+        <p:ajaxStatus style="width: 16px;height: 16px;" id="ajaxStatusPanel">
+            <f:facet name="start">
+                <h:graphicImage library="images" name="ajaxloading.gif" />
+            </f:facet>
+
+            <f:facet name="complete">
+                <h:outputText value="" />
+            </f:facet>
+
+        </p:ajaxStatus>
+
+        <h:form id="storesListForm">
+            <p:messages id="dataTableMessages" showDetail="true" sticky="true" />
+
+            <p:dataTable id="storesDataTable" value="#{storeBean.stores}" var="store" editable="true" rowKey="#{store.idStore}" 
+                         selection="#{storeBean.storeSelected}" selectionMode="single" >
+
+                <f:facet name="header">
+                    Listado de Sucursales
+                </f:facet>
+                
+                <p:column headerText="Id de Sucursal">
+                    <h:outputText value="#{store.idStore}" />
+                </p:column>
+
+                <p:column headerText="Nombre">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{store.name}" />
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputText value="#{store.name}" />
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <p:column headerText="Dirección">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{store.address}" />
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputText value="#{store.address}" />
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+
+                <f:facet name="footer">
+                    <p:commandButton value="Regresar" action="index" />
+                    <p:spacer height="5px"/>
+                    <p:commandButton value="Agregar" actionListener="#{storeBean.restartStoreSelected}"
+                                     update=":dialogForm" oncomplete="PF('storeDialog').show()" />
+                </f:facet>
+
+                <p:column headerText="Opciones" style="width: 80px">
+                    <p:rowEditor/>
+                </p:column>
+
+                <p:ajax event="rowEdit" listener="#{storeBean.editListener}"/>
+
+            </p:dataTable>
+
+		<p:dialog header="Éxito - Guardar" widgetVar="successSaveDialog"
+			resizable="false" draggable="false" closable="true" modal="true">
+			<p:outputPanel>
+				<h:outputText value="Sucursal registrada correctamente." />
+				<p:commandButton value="Aceptar"
+					onclick="PF('successSaveDialog').hide();" />
+			</p:outputPanel>
+		</p:dialog>
+
+		<p:dialog header="Éxito - Modificar" widgetVar="successUpdateDialog"
+			resizable="false" draggable="false" closable="true" modal="true">
+			<p:outputPanel>
+				<h:outputText value="Sucursal modificada correctamente." />
+				<p:commandButton value="Aceptar"
+					onclick="PF('successUpdateDialog').hide();" />
+			</p:outputPanel>
+		</p:dialog>
+		
+		<p:dialog header="Éxito - Eliminar" widgetVar="successDeleteDialog" resizable="false"
+			draggable="false" closable="true" modal="true">
+			<p:outputPanel>
+				<h:outputText value="Sucursal eliminada correctamente." />
+				<p:commandButton value="Aceptar" onclick="PF('successDeleteDialog').hide();" />
+			</p:outputPanel>
+		</p:dialog>
+
+		<p:contextMenu for="storesDataTable">
+                <p:menuitem value="Eliminar" update="storesListForm:storesDataTable" icon="ui-icon-close" 
+                            actionListener="#{storeBean.deleteStore}" />
+            </p:contextMenu>
+
+        </h:form>
+
+        <p:dialog id="storeDlg" widgetVar="storeDialog" header="Agregar Sucursal" modal="true" showEffect="fade" hideEffect="fade" 
+            resizable="false" onbeforehide="return validarCampos();">
+            <h:form id="dialogForm">
+           
+            
+                <p:outputPanel id="storeDetail" style="text-align: center">
+                    <p:panelGrid id="display" columns="2" columnClasses="label, value" >
+                        <h:outputText for="name" value="Nombre" />
+                        <h:inputText id="name" value="#{storeBean.storeSelected.name}" required="true"/>
+                        
+                        <h:outputText value="Direccion" />
+                        <h:inputText value="#{storeBean.storeSelected.address}" required="true"/>
+                        
+           				
+                         
+                        <f:facet name="footer" >
+                            <p:commandButton value="Agregar" actionListener="#{storeBean.insertStore}" 
+                                             update="display,:storesListForm:storesDataTable" oncomplete="PF('storeDialog').hide()" />
+                            <p:commandButton value="Cancelar" onclick="PF('storeDialog').hide()" />
+                        </f:facet>
+                    </p:panelGrid>
+                </p:outputPanel>
+                
+			<script type="text/javascript">
+			function validarCampos() {
+            // Lógica de validación, por ejemplo:
+            var name = document.getElementById('dialogForm:name');
+            if (!name.value.trim()) {
+                alert('Por favor, complete todos los campos antes de cerrar el modal.');
+                return false;
+            }
+            return true;
+       	 }
+	       	 
+    	</script>
+		</h:form>
+			
+	
+		</p:dialog>
+        
+
+    </h:body>
+</html>
